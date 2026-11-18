@@ -34,8 +34,8 @@
     </div>
   </div>
 
-  <!-- Background Audio (Starts when "Buka Undangan" is pressed) -->
-  <audio id="bg-music" src="assets/audio/wedding_bgm.mp3" loop preload="auto"></audio>
+  <!-- Background Audio (Starts when "Buka Undangan" is pressed; preload="none" keeps initial mobile load fast) -->
+  <audio id="bg-music" src="assets/audio/wedding_bgm.mp3" loop preload="none"></audio>
 
   <!-- Floating Music On/Off Toggle Button -->
   <div class="floating-controls" id="floating-controls">
@@ -99,7 +99,7 @@
 
           <!-- Left Floral Cluster: Large Pink Lilies, Green Leafy Vines & Small Pink Berries -->
           <div class="frame-floral-left" id="cover-lilies-left" aria-hidden="true">
-            <img src="assets/images/pink_lilies.png" alt="" style="width:100%;height:100%;object-fit:contain;" />
+            <img src="assets/images/pink_lilies.png" alt="" decoding="async" fetchpriority="high" style="width:100%;height:100%;object-fit:contain;" />
             <!-- Extra SVG Green Vines & Small Pink Berries Accents -->
             <svg viewBox="0 0 140 300" fill="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">
               <path d="M75 25 C40 60, 22 120, 38 190 C48 230, 68 265, 92 285" stroke="#5d7a58" stroke-width="2.2" fill="none" opacity="0.75"/>
@@ -113,7 +113,7 @@
 
           <!-- Right Floral Cluster: Large Pink Lilies, Green Leafy Vines & Small Pink Berries -->
           <div class="frame-floral-right" id="cover-lilies-right" aria-hidden="true">
-            <img src="assets/images/pink_lilies.png" alt="" style="width:100%;height:100%;object-fit:contain;" />
+            <img src="assets/images/pink_lilies.png" alt="" decoding="async" style="width:100%;height:100%;object-fit:contain;" />
             <svg viewBox="0 0 140 300" fill="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">
               <path d="M75 25 C40 60, 22 120, 38 190 C48 230, 68 265, 92 285" stroke="#5d7a58" stroke-width="2.2" fill="none" opacity="0.75"/>
               <circle cx="32" cy="84" r="4.5" fill="#f29cb1" stroke="#b55d72" stroke-width="0.8"/>
@@ -146,8 +146,8 @@
 
             <!-- Inside the Oval Frame: Watercolor Bride & Groom in Malay Attire in Flower Garden with Glasshouse Villa & Cypress Trees -->
             <div class="oval-inner-window" id="oval-inner-window">
-              <img class="mini-scene-bg" src="assets/images/garden_bg_sunset.jpg" alt="Ilustrasi Taman Sunset, Villa Kaca, dan Pohon Cemara" />
-              <img class="mini-scene-couple" src="assets/images/couple_watercolor.png" alt="Ilustrasi Mempelai Riani dan Rafly Berbaju Pengantin Melayu Putih" />
+              <img class="mini-scene-bg" src="assets/images/garden_bg_sunset.jpg" alt="Ilustrasi Taman Sunset, Villa Kaca, dan Pohon Cemara" decoding="async" fetchpriority="high" />
+              <img class="mini-scene-couple" src="assets/images/couple_watercolor.png" alt="Ilustrasi Mempelai Riani dan Rafly Berbaju Pengantin Melayu Putih" decoding="async" fetchpriority="high" />
             </div>
           </div>
 
@@ -241,7 +241,7 @@
 
           <!-- PARALLAX LAYER 1 (Back / Slowest): Sunset Sky, Glasshouse Villa & Tall Cypress Trees -->
           <div class="parallax-layer layer-sky-villa" id="layer-sky-villa" data-depth="0.12">
-            <img class="garden-bg-painting" src="assets/images/garden_bg_sunset.jpg" alt="Taman Sunset, Villa Kaca, Pohon Cemara, dan Kolam Batu Pijakan" />
+            <img class="garden-bg-painting" src="assets/images/garden_bg_sunset.jpg" alt="Taman Sunset, Villa Kaca, Pohon Cemara, dan Kolam Batu Pijakan" decoding="async" />
             <div class="sky-sunset-glow"></div>
           </div>
 
@@ -256,19 +256,33 @@
                 <path d="M128 118 Q126 185 130 240"/>
                 <path d="M154 135 Q152 190 156 235"/>
               </g>
+              <g fill="#ffd76b" opacity="0.28">
+                <circle cx="38" cy="140" r="6.5"/>
+                <circle cx="39" cy="195" r="7"/>
+                <circle cx="40" cy="240" r="6"/>
+                <circle cx="67" cy="128" r="7"/>
+                <circle cx="68" cy="178" r="6.5"/>
+                <circle cx="69" cy="230" r="7"/>
+                <circle cx="97" cy="142" r="6.5"/>
+                <circle cx="98" cy="198" r="7.5"/>
+                <circle cx="128" cy="155" r="6.8"/>
+                <circle cx="129" cy="212" r="6.5"/>
+                <circle cx="154" cy="175" r="6.5"/>
+                <circle cx="155" cy="222" r="6"/>
+              </g>
               <g fill="#fff8d6">
-                <circle class="fairy-bulb" cx="38" cy="140" r="3.2" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="39" cy="195" r="3.5" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="40" cy="240" r="3.0" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="67" cy="128" r="3.5" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="68" cy="178" r="3.2" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="69" cy="230" r="3.6" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="97" cy="142" r="3.2" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="98" cy="198" r="3.8" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="128" cy="155" r="3.4" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="129" cy="212" r="3.2" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="154" cy="175" r="3.2" filter="drop-shadow(0 0 5px #ffd76b)"/>
-                <circle class="fairy-bulb" cx="155" cy="222" r="3.0" filter="drop-shadow(0 0 5px #ffd76b)"/>
+                <circle class="fairy-bulb" cx="38" cy="140" r="3.0"/>
+                <circle class="fairy-bulb" cx="39" cy="195" r="3.2"/>
+                <circle class="fairy-bulb" cx="40" cy="240" r="2.8"/>
+                <circle class="fairy-bulb" cx="67" cy="128" r="3.2"/>
+                <circle class="fairy-bulb" cx="68" cy="178" r="3.0"/>
+                <circle class="fairy-bulb" cx="69" cy="230" r="3.4"/>
+                <circle class="fairy-bulb" cx="97" cy="142" r="3.0"/>
+                <circle class="fairy-bulb" cx="98" cy="198" r="3.5"/>
+                <circle class="fairy-bulb" cx="128" cy="155" r="3.2"/>
+                <circle class="fairy-bulb" cx="129" cy="212" r="3.0"/>
+                <circle class="fairy-bulb" cx="154" cy="175" r="3.0"/>
+                <circle class="fairy-bulb" cx="155" cy="222" r="2.8"/>
               </g>
             </svg>
           </div>
@@ -276,14 +290,14 @@
           <!-- PARALLAX LAYER 3 (Focal Midground): Bride & Groom in White Malay Attire + Fluffy Grey Cat + Small Orange Cat -->
           <div class="parallax-layer layer-characters" id="layer-characters" data-depth="0.48">
 
-            <!-- Couple in Center: Groom in White Baju Melayu + Pastel Pink Sampin Kissing Bride's Cheek; Bride in Lace Gown + Veil Holding Colorful Bouquet -->
+            <!-- Couple in Center: Groom in White Baju Melayu + Pastel Pink Sampin; Bride in Hijab + Lace Gown + Veil Holding Colorful Bouquet -->
             <div class="couple-wrapper" id="couple-wrapper">
-              <img class="couple-illustration-img" src="assets/images/couple_watercolor.png" alt="Mempelai Riani dan Rafly di Taman Bunga" />
+              <img class="couple-illustration-img" src="assets/images/couple_watercolor.png" alt="Mempelai Riani dan Rafly di Taman Bunga" decoding="async" />
             </div>
 
             <!-- Fluffy Grey Cat on Left of Couple (Raises Front Paw in Scene 5) -->
             <div class="cat-grey-wrapper" id="cat-grey-wrapper">
-              <img class="cat-grey-img" src="assets/images/cat_grey.png" alt="Kucing Abu Berbulu Lebat" />
+              <img class="cat-grey-img" src="assets/images/cat_grey.png" alt="Kucing Abu Berbulu Lebat" decoding="async" />
               <!-- Subtle Paw Highlight Sparkle When Presenting Wedding Day -->
               <svg class="cat-grey-paw-wave" id="cat-grey-paw-sparkle" viewBox="0 0 40 40" fill="none">
                 <path d="M20 4 L22 14 L32 16 L22 18 L20 28 L18 18 L8 16 L18 14 Z" fill="#fff6cc" opacity="0.85"/>
@@ -292,7 +306,7 @@
 
             <!-- Small Orange Cat on Right near the Bride's Veil (Presents Location in Scene 6) -->
             <div class="cat-orange-wrapper" id="cat-orange-wrapper">
-              <img class="cat-orange-img" src="assets/images/cat_orange.png" alt="Kucing Kecil Oranye" />
+              <img class="cat-orange-img" src="assets/images/cat_orange.png" alt="Kucing Kecil Oranye" decoding="async" />
             </div>
 
           </div>
@@ -359,7 +373,7 @@
 
           <!-- PARALLAX LAYER 5 (Foreground / Fastest): Swaying Pink Roses, Yellow Wildflowers & Lily of the Valley -->
           <div class="parallax-layer layer-foreground-flowers" id="layer-foreground-flowers" data-depth="0.95">
-            <img class="fg-flowers-svg" src="assets/images/garden_fg_flowers.png" alt="" aria-hidden="true" style="height:48%;bottom:-2%;object-fit:cover;" />
+            <img class="fg-flowers-svg" src="assets/images/garden_fg_flowers.png" alt="" aria-hidden="true" decoding="async" style="height:48%;bottom:-2%;object-fit:cover;" />
             <!-- Extra Crisp Watercolor Vector Foreground Blooms (Pink Roses, Yellow Wildflowers, Lily of the Valley) -->
             <svg class="fg-flowers-svg" viewBox="0 0 480 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <!-- Left Swaying Cluster: Pink Roses & Yellow Wildflowers -->
@@ -556,27 +570,27 @@
 
         <div class="gallery-grid" id="gallery-grid">
           <figure class="gallery-item" data-index="0" data-caption="Momen Kebersamaan Riani &amp; Rafly">
-            <img src="assets/images/gallery_1.jpg" alt="Potret kebersamaan Riani dan Rafly" loading="lazy" />
+            <img src="assets/images/gallery_1.jpg" alt="Potret kebersamaan Riani dan Rafly" loading="lazy" decoding="async" />
             <span class="gallery-zoom-badge">🔍 Perbesar</span>
           </figure>
           <figure class="gallery-item" data-index="1" data-caption="Momen Bahagia Bersama Buket Bunga">
-            <img src="assets/images/gallery_2.jpg" alt="Riani dan Rafly memegang buket bunga" loading="lazy" />
+            <img src="assets/images/gallery_2.jpg" alt="Riani dan Rafly memegang buket bunga" loading="lazy" decoding="async" />
             <span class="gallery-zoom-badge">🔍 Perbesar</span>
           </figure>
           <figure class="gallery-item" data-index="2" data-caption="Potret Riani &amp; Rafly di Taman">
-            <img src="assets/images/gallery_3.jpg" alt="Riani dan Rafly berfoto di taman" loading="lazy" />
+            <img src="assets/images/gallery_3.jpg" alt="Riani dan Rafly berfoto di taman" loading="lazy" decoding="async" />
             <span class="gallery-zoom-badge">🔍 Perbesar</span>
           </figure>
           <figure class="gallery-item" data-index="3" data-caption="Melangkah Bersama Menuju Hari Bahagia">
-            <img src="assets/images/gallery_4.jpg" alt="Riani dan Rafly di jalan setapak taman" loading="lazy" />
+            <img src="assets/images/gallery_4.jpg" alt="Riani dan Rafly di jalan setapak taman" loading="lazy" decoding="async" />
             <span class="gallery-zoom-badge">🔍 Perbesar</span>
           </figure>
           <figure class="gallery-item" data-index="4" data-caption="Kenangan Manis di Jembatan Taman">
-            <img src="assets/images/gallery_5.jpg" alt="Riani dan Rafly di atas jembatan taman" loading="lazy" />
+            <img src="assets/images/gallery_5.jpg" alt="Riani dan Rafly di atas jembatan taman" loading="lazy" decoding="async" />
             <span class="gallery-zoom-badge">🔍 Perbesar</span>
           </figure>
           <figure class="gallery-item" data-index="5" data-caption="The Wedding Of Riani &amp; Rafly — 22 Agustus 2027">
-            <img src="assets/images/gallery_6.jpg" alt="Potret kebahagiaan Riani dan Rafly" loading="lazy" />
+            <img src="assets/images/gallery_6.jpg" alt="Potret kebahagiaan Riani dan Rafly" loading="lazy" decoding="async" />
             <span class="gallery-zoom-badge">🔍 Perbesar</span>
           </figure>
         </div>
@@ -698,7 +712,7 @@
         </svg>
 
         <div class="closing-medallion">
-          <img src="assets/images/couple_watercolor.png" alt="Ilustrasi Riani &amp; Rafly" loading="lazy" />
+          <img src="assets/images/couple_watercolor.png" alt="Ilustrasi Riani &amp; Rafly" loading="lazy" decoding="async" />
         </div>
 
         <h2 class="section-title-script" id="title-penutup">Terima Kasih</h2>
@@ -738,7 +752,7 @@
        ======================================================================== -->
   <div class="lightbox-modal" id="lightbox-modal" role="dialog" aria-modal="true" aria-label="Tampilan Foto Diperbesar">
     <div class="lightbox-frame">
-      <img id="lightbox-img" src="assets/images/gallery_1.jpg" alt="Foto diperbesar" />
+      <img id="lightbox-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Foto diperbesar" decoding="async" />
       <div class="lightbox-caption" id="lightbox-caption"></div>
     </div>
     <div class="lightbox-controls">
@@ -748,9 +762,6 @@
     </div>
   </div>
 
-  <!-- Optional GSAP + ScrollTrigger CDN (with seamless built-in 60fps engine in app.js) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

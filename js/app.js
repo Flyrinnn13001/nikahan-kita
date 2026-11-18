@@ -31,7 +31,7 @@
     const container = document.getElementById('sparkles-container');
     if (!container) return;
 
-    const count = 26;
+    const count = window.innerWidth <= 600 ? 12 : 20;
     const frag = document.createDocumentFragment();
     for (let i = 0; i < count; i++) {
       const p = document.createElement('span');
@@ -139,11 +139,12 @@
 
     // Prepare garden camera underneath to expand into full view synchronously
     if (gardenCameraRig) {
-      gardenCameraRig.style.transform = 'translate3d(0%, 0%, 0) scale(0.86)';
+      gardenCameraRig.style.transform = 'translate3d(0%, 0%, 0) scale3d(0.86, 0.86, 1)';
     }
 
-    const durationMs = 3600; // 3.6 seconds cinematic zoom into the painting
+    const durationMs = 3400; // 3.4 seconds cinematic zoom into the painting
     const startTime = performance.now();
+    let outerHidden = false;
 
     function stepZoom(now) {
       const elapsed = now - startTime;
@@ -153,14 +154,19 @@
       // Zoom the cover rig from scale 1 to 3.5 toward the center of the oval painting
       const currentScale = 1 + (3.5 - 1) * e;
       if (coverZoomRig) {
-        coverZoomRig.style.transform = `scale(${currentScale.toFixed(4)})`;
+        coverZoomRig.style.transform = `scale3d(${currentScale.toFixed(4)}, ${currentScale.toFixed(4)}, 1)`;
       }
 
       // Fade out outer frame elements (lilies, tag, wax seal, bottom panel) as they expand past screen
-      const outerFade = Math.max(0, 1 - easeInOutCubic(Math.min(1, rawProgress * 1.45)));
-      coverOuterElements.forEach((el) => {
-        el.style.opacity = outerFade.toFixed(3);
-      });
+      if (!outerHidden) {
+        const outerFade = Math.max(0, 1 - easeInOutCubic(Math.min(1, rawProgress * 1.45)));
+        for (let i = 0; i < coverOuterElements.length; i++) {
+          coverOuterElements[i].style.opacity = outerFade.toFixed(3);
+        }
+        if (outerFade <= 0.001) {
+          outerHidden = true;
+        }
+      }
 
       // Fade out the cover overlay itself in the final 45% of the zoom so the live multi-layer garden shines through seamlessly
       const overlayOpacity = rawProgress < 0.52 ? 1 : Math.max(0, 1 - (rawProgress - 0.52) / 0.48);
@@ -171,7 +177,7 @@
       // Concurrently expand the live garden stage from 0.86 to 1.00
       if (gardenCameraRig) {
         const gardenScale = 0.86 + 0.14 * e;
-        gardenCameraRig.style.transform = `translate3d(0%, 0%, 0) scale(${gardenScale.toFixed(4)})`;
+        gardenCameraRig.style.transform = `translate3d(0%, 0%, 0) scale3d(${gardenScale.toFixed(4)}, ${gardenScale.toFixed(4)}, 1)`;
       }
 
       if (rawProgress < 1) {
@@ -183,9 +189,8 @@
         }
         document.body.classList.remove('locked');
         isUnlocked = true;
-        if (window.ScrollTrigger) {
-          window.ScrollTrigger.refresh();
-        }
+        measureGardenMetrics();
+        updateGardenScene(0, true);
       }
     }
 
@@ -296,10 +301,17 @@
     return 1 - easeInOutCubic((p - fullOut) / (endOut - fullOut));
   }
 
+  const cardState = new WeakMap();
+
   function applyCardVisibility(el, alpha, slideY = 14) {
     if (!el) return;
-    el.style.opacity = alpha.toFixed(3);
-    const yOffset = ((1 - alpha) * slideY).toFixed(1);
+    const rounded = Math.round(alpha * 1000) / 1000;
+    const prev = cardState.get(el);
+    if (prev !== undefined && Math.abs(prev - rounded) < 0.002) return;
+    cardState.set(el, rounded);
+
+    el.style.opacity = rounded.toFixed(3);
+    const yOffset = ((1 - rounded) * slideY).toFixed(1);
     if (
       el.classList.contains('hero-title-banner') ||
       el.classList.contains('scroll-hint-pill') ||
@@ -310,7 +322,7 @@
     } else {
       el.style.transform = `translate3d(0, ${yOffset}px, 0)`;
     }
-    if (alpha > 0.55) {
+    if (rounded > 0.55) {
       el.classList.add('interactive-active');
     } else {
       el.classList.remove('interactive-active');
@@ -319,13 +331,31 @@
 
   let targetProgress = 0;
   let currentProgress = 0;
+  let gardenTrackTop = 0;
+  let gardenTrackHeight = 1;
+  let gardenScrollable = 1;
+  let rafId = 0;
+  let lastActiveDot = -1;
+  let lastRenderedP = -1;
+  let isGardenPaused = false;
 
-  function updateGardenScene(p) {
+  function measureGardenMetrics() {
+    if (!gardenTrack) return;
+    gardenTrackTop = gardenTrack.offsetTop;
+    gardenTrackHeight = gardenTrack.offsetHeight;
+    gardenScrollable = Math.max(1, gardenTrackHeight - window.innerHeight);
+  }
+
+  function updateGardenScene(p, force) {
+    if (!force && Math.abs(p - lastRenderedP) < 0.0001) return;
+    lastRenderedP = p;
+
     const cam = sampleCameraKeyframes(p);
 
-    // 1. Transform main camera rig
+    // 1. Transform main camera rig using GPU scale3d
     if (gardenCameraRig && isUnlocked) {
-      gardenCameraRig.style.transform = `translate3d(${cam.x.toFixed(2)}%, ${cam.y.toFixed(2)}%, 0) scale(${cam.scale.toFixed(4)})`;
+      const s = cam.scale.toFixed(4);
+      gardenCameraRig.style.transform = `translate3d(${cam.x.toFixed(2)}%, ${cam.y.toFixed(2)}%, 0) scale3d(${s}, ${s}, 1)`;
     }
 
     // 2. Apply multi-plane parallax offsets relative to camera pan & scroll
@@ -348,15 +378,16 @@
       layerWildlife.style.transform = `translate3d(${(panX * 0.08).toFixed(2)}%, ${(panY * 0.08 - scrollShift * 0.4).toFixed(2)}px, 0)`;
     }
     if (layerFgFlowers) {
-      layerFgFlowers.style.transform = `translate3d(${(panX * 0.22).toFixed(2)}%, ${(panY * 0.18 - scrollShift * 0.75).toFixed(2)}px, 0) scale(${(1 + (cam.scale - 1) * 0.12).toFixed(3)})`;
+      const fgs = (1 + (cam.scale - 1) * 0.12).toFixed(3);
+      layerFgFlowers.style.transform = `translate3d(${(panX * 0.22).toFixed(2)}%, ${(panY * 0.18 - scrollShift * 0.75).toFixed(2)}px, 0) scale3d(${fgs}, ${fgs}, 1)`;
     }
 
-    // 3. Update Scene Story Overlays
+    // 3. Update Scene Story Overlays (dirty-checked inside applyCardVisibility)
     const heroAlpha = p < 0.10 ? 1 : Math.max(0, 1 - (p - 0.10) / 0.04);
     applyCardVisibility(cards.hero, heroAlpha, -10);
     applyCardVisibility(cards.scrollHint, heroAlpha, 10);
 
-    // Scene 4A: Bride (Siti Riani) + Scene 4C brief couple return
+    // Scene 4A: Bride (Siti Riani)
     const brideAlpha = bandOpacity(p, 0.13, 0.16, 0.26, 0.29);
     applyCardVisibility(cards.bride, brideAlpha, 14);
 
@@ -368,19 +399,28 @@
     const weddingDayAlpha = bandOpacity(p, 0.54, 0.57, 0.67, 0.70);
     applyCardVisibility(cards.weddingDay, weddingDayAlpha, 12);
     if (catGreyWrapper) {
-      // Extra playful lift when Grey Cat is speaking
-      const lift = weddingDayAlpha * -6;
-      const rot = weddingDayAlpha * 4;
-      catGreyWrapper.style.transform = `translateY(${lift.toFixed(1)}px) rotate(${rot.toFixed(1)}deg) scale(${(1 + weddingDayAlpha * 0.08).toFixed(3)})`;
+      if (weddingDayAlpha > 0.005) {
+        const lift = weddingDayAlpha * -6;
+        const rot = weddingDayAlpha * 4;
+        const cs = (1 + weddingDayAlpha * 0.08).toFixed(3);
+        catGreyWrapper.style.transform = `translate3d(0, ${lift.toFixed(1)}px, 0) rotate(${rot.toFixed(1)}deg) scale3d(${cs}, ${cs}, 1)`;
+      } else if (catGreyWrapper.style.transform) {
+        catGreyWrapper.style.transform = '';
+      }
     }
 
     // Scene 6: Orange Cat Location Glowing Speech Bubble
     const locationAlpha = bandOpacity(p, 0.70, 0.73, 0.82, 0.85);
     applyCardVisibility(cards.location, locationAlpha, 12);
     if (catOrangeWrapper) {
-      const lift = locationAlpha * -5;
-      const rot = locationAlpha * -4;
-      catOrangeWrapper.style.transform = `translateY(${lift.toFixed(1)}px) rotate(${rot.toFixed(1)}deg) scale(${(1 + locationAlpha * 0.08).toFixed(3)})`;
+      if (locationAlpha > 0.005) {
+        const lift = locationAlpha * -5;
+        const rot = locationAlpha * -4;
+        const cs = (1 + locationAlpha * 0.08).toFixed(3);
+        catOrangeWrapper.style.transform = `translate3d(0, ${lift.toFixed(1)}px, 0) rotate(${rot.toFixed(1)}deg) scale3d(${cs}, ${cs}, 1)`;
+      } else if (catOrangeWrapper.style.transform) {
+        catOrangeWrapper.style.transform = '';
+      }
     }
 
     // Scene 7A: Sunset Sky Surah Ar-Ruum 30:21
@@ -391,53 +431,89 @@
     const saveDateAlpha = p >= 0.94 ? Math.min(1, (p - 0.94) / 0.03) : 0;
     applyCardVisibility(cards.saveDate, saveDateAlpha, 14);
 
-    // 4. Update Active Chapter Dot Indicator
-    const ranges = [
-      [0.0, 0.13],
-      [0.13, 0.29],
-      [0.29, 0.45],
-      [0.45, 0.54],
-      [0.54, 0.70],
-      [0.70, 0.85],
-      [0.85, 0.94],
-      [0.94, 1.01],
-    ];
-    ranges.forEach((r, idx) => {
-      if (chapterDots[idx]) {
-        chapterDots[idx].classList.toggle('active', p >= r[0] && p < r[1]);
+    // 4. Update Active Chapter Dot Indicator only when chapter changes
+    let activeIdx = 0;
+    if (p >= 0.94) activeIdx = 7;
+    else if (p >= 0.85) activeIdx = 6;
+    else if (p >= 0.70) activeIdx = 5;
+    else if (p >= 0.54) activeIdx = 4;
+    else if (p >= 0.45) activeIdx = 3;
+    else if (p >= 0.29) activeIdx = 2;
+    else if (p >= 0.13) activeIdx = 1;
+
+    if (activeIdx !== lastActiveDot) {
+      if (lastActiveDot >= 0 && chapterDots[lastActiveDot]) {
+        chapterDots[lastActiveDot].classList.remove('active');
       }
-    });
+      if (chapterDots[activeIdx]) {
+        chapterDots[activeIdx].classList.add('active');
+      }
+      lastActiveDot = activeIdx;
+    }
   }
 
   function computeScrollProgress() {
     if (!gardenTrack) return 0;
-    const rect = gardenTrack.getBoundingClientRect();
-    const scrollable = Math.max(1, gardenTrack.offsetHeight - window.innerHeight);
-    const scrolled = -rect.top;
-    return Math.max(0, Math.min(1, scrolled / scrollable));
+    const scrolled = window.scrollY - gardenTrackTop;
+    return Math.max(0, Math.min(1, scrolled / gardenScrollable));
+  }
+
+  function updateOffscreenPauseState() {
+    if (!gardenTrack) return;
+    const shouldPause = window.scrollY > gardenTrackTop + gardenTrackHeight + 40;
+    if (shouldPause !== isGardenPaused) {
+      isGardenPaused = shouldPause;
+      gardenTrack.classList.toggle('garden-paused', shouldPause);
+    }
+  }
+
+  function tickGarden() {
+    rafId = 0;
+    if (!isUnlocked) return;
+
+    targetProgress = computeScrollProgress();
+    const delta = targetProgress - currentProgress;
+
+    if (Math.abs(delta) < 0.0003) {
+      currentProgress = targetProgress;
+      updateGardenScene(currentProgress, false);
+      return; // Stop rAF completely when settled — zero idle battery/CPU usage!
+    }
+
+    currentProgress += delta * 0.2;
+    updateGardenScene(currentProgress, false);
+    rafId = requestAnimationFrame(tickGarden);
+  }
+
+  function requestGardenTick() {
+    updateOffscreenPauseState();
+    if (isUnlocked && !rafId) {
+      rafId = requestAnimationFrame(tickGarden);
+    }
   }
 
   function startGardenAnimationLoop() {
-    function tick() {
-      targetProgress = computeScrollProgress();
-      // Smooth damping (lerp) for silky 60fps camera motion on mobile & desktop
-      currentProgress += (targetProgress - currentProgress) * 0.14;
-      if (Math.abs(targetProgress - currentProgress) < 0.0002) {
-        currentProgress = targetProgress;
-      }
-      updateGardenScene(currentProgress);
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+    measureGardenMetrics();
+    window.addEventListener('scroll', requestGardenTick, { passive: true });
+    window.addEventListener('resize', () => {
+      measureGardenMetrics();
+      requestGardenTick();
+    }, { passive: true });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        measureGardenMetrics();
+        requestGardenTick();
+      }, 200);
+    }, { passive: true });
   }
 
   // Interactive Chapter Dots Click-to-Scroll
   chapterDots.forEach((dot) => {
     dot.addEventListener('click', () => {
       if (!gardenTrack) return;
+      measureGardenMetrics();
       const prog = parseFloat(dot.getAttribute('data-progress') || '0');
-      const scrollable = Math.max(1, gardenTrack.offsetHeight - window.innerHeight);
-      const targetY = gardenTrack.offsetTop + prog * scrollable;
+      const targetY = gardenTrackTop + prog * gardenScrollable;
       window.scrollTo({ top: targetY, behavior: 'smooth' });
     });
   });
@@ -455,19 +531,22 @@
     // 22 August 2027 08:00:00 WIB (UTC+7)
     const weddingTimestamp = new Date('2027-08-22T08:00:00+07:00').getTime();
 
+    let prevD = '', prevH = '', prevM = '', prevS = '';
+
     function updateClock() {
+      if (document.hidden) return;
       const now = Date.now();
       const diff = Math.max(0, weddingTimestamp - now);
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const mins = Math.floor((diff / (1000 * 60)) % 60);
-      const secs = Math.floor((diff / 1000) % 60);
+      const d = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+      const h = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+      const m = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+      const s = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
 
-      daysEl.textContent = String(days).padStart(2, '0');
-      hoursEl.textContent = String(hours).padStart(2, '0');
-      minsEl.textContent = String(mins).padStart(2, '0');
-      secsEl.textContent = String(secs).padStart(2, '0');
+      if (d !== prevD) { daysEl.textContent = d; prevD = d; }
+      if (h !== prevH) { hoursEl.textContent = h; prevH = h; }
+      if (m !== prevM) { minsEl.textContent = m; prevM = m; }
+      if (s !== prevS) { secsEl.textContent = s; prevS = s; }
     }
 
     updateClock();
