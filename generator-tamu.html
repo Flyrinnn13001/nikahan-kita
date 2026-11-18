@@ -158,8 +158,10 @@
     const btnSendWa = document.getElementById('btn-send-wa');
     const statusMsg = document.getElementById('status-msg');
 
-    // Auto-fill current URL origin if hosted
-    const defaultUrl = window.location.href.replace(/generator-tamu\.html.*$/i, '');
+    // Auto-fill GitHub Pages URL when opened locally, or current hosted URL origin
+    const defaultUrl = window.location.protocol === 'file:'
+      ? 'https://flyrinnn13001.github.io/nikahan-kita/'
+      : window.location.href.replace(/generator-tamu\.html.*$/i, '');
     baseUrlInput.value = defaultUrl;
 
     function updatePreview() {
