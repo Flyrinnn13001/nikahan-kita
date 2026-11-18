@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator Link Tamu WhatsApp — Riani &amp; Rafly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Great+Vibes&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sage: #688464;
+      --cream: #fdfaf3;
+      --pink: #f4c6d0;
+      --gold: #d5ae4e;
+      --brown: #3e271d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: repeating-linear-gradient(90deg, #d5e2d1 0px, #d5e2d1 12px, #fdf9f0 12px, #fdf9f0 24px, #fae3e8 24px, #fae3e8 36px, #fdf9f0 36px, #fdf9f0 48px);
+      color: var(--brown);
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+    .card {
+      max-width: 520px;
+      margin: 0 auto;
+      background: #fffafb;
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      padding: 24px 20px;
+      box-shadow: 0 12px 32px rgba(62, 39, 29, 0.16), 0 0 0 5px var(--pink);
+    }
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.3rem;
+      font-weight: 400;
+      text-align: center;
+      color: var(--brown);
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #6e4f40;
+      margin-bottom: 18px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e598aa;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--brown);
+      background: #fffdf9;
+    }
+    textarea {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button, .btn-wa {
+      flex: 1 1 calc(50% - 10px);
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-copy {
+      background: linear-gradient(135deg, #f6ced8, #e598aa);
+      color: var(--brown);
+    }
+    .btn-wa {
+      flex: 1 1 100%;
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: #fff;
+      border-color: #0e6f63;
+    }
+    .toast {
+      margin-top: 10px;
+      text-align: center;
+      font-weight: 700;
+      color: #3d5a3a;
+      min-height: 1.4em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Riani &amp; Rafly</h1>
+    <p class="subtitle">Generator Link Nama Tamu &amp; Pengirim WhatsApp</p>
+
+    <div class="form-group">
+      <label for="base-url">1. Link Website Undangan (setelah di-online-kan)</label>
+      <input type="url" id="base-url" placeholder="Contoh: https://riani-rafly.netlify.app/" />
+    </div>
+
+    <div class="form-group">
+      <label for="guest-name">2. Nama Tamu yang Diundang</label>
+      <input type="text" id="guest-name" placeholder="Contoh: Budi Santoso & Partner" value="Bapak/Ibu Tamu Undangan" />
+    </div>
+
+    <div class="form-group">
+      <label for="guest-phone">3. Nomor WhatsApp Tamu (Opsional, contoh: 08123456789)</label>
+      <input type="tel" id="guest-phone" placeholder="Kosongkan jika ingin pilih kontak langsung di WA" />
+    </div>
+
+    <div class="form-group">
+      <label for="generated-link">Link Khusus Tamu Ini:</label>
+      <input type="text" id="generated-link" readonly />
+    </div>
+
+    <div class="form-group">
+      <label for="wa-message">Preview Pesan Pengantar WhatsApp:</label>
+      <textarea id="wa-message" rows="11"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn-copy" id="btn-copy-link">📋 Salin Link Saja</button>
+      <button type="button" class="btn-copy" id="btn-copy-msg">💌 Salin Teks + Link</button>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="btn-wa" id="btn-send-wa">📲 Kirim Langsung ke WhatsApp</a>
+    </div>
+    <div class="toast" id="status-msg"></div>
+  </div>
+
+  <script>
+    const baseUrlInput = document.getElementById('base-url');
+    const guestNameInput = document.getElementById('guest-name');
+    const guestPhoneInput = document.getElementById('guest-phone');
+    const generatedLinkInput = document.getElementById('generated-link');
+    const waMessageInput = document.getElementById('wa-message');
+    const btnCopyLink = document.getElementById('btn-copy-link');
+    const btnCopyMsg = document.getElementById('btn-copy-msg');
+    const btnSendWa = document.getElementById('btn-send-wa');
+    const statusMsg = document.getElementById('status-msg');
+
+    // Auto-fill current URL origin if hosted
+    const defaultUrl = window.location.href.replace(/generator-tamu\.html.*$/i, '');
+    baseUrlInput.value = defaultUrl;
+
+    function updatePreview() {
+      let base = (baseUrlInput.value || '').trim();
+      if (!base.endsWith('/') && !base.endsWith('.html')) {
+        base += '/';
+      }
+      const guest = (guestNameInput.value || 'Tamu Undangan').trim();
+      const encodedGuest = encodeURIComponent(guest);
+      const sep = base.includes('?') ? '&' : '?';
+      const fullLink = `${base}${sep}to=${encodedGuest}`;
+      generatedLinkInput.value = fullLink;
+
+      const msg = `Assalamu'alaikum Warahmatullahi Wabarakatuh
+
+Kepada Yth. Bapak/Ibu/Saudara/i
+*${guest}*
+
+Tanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami:
+
+*Siti Riani & Muhamad Rafly Kristiadi*
+
+📅 Minggu, 22 Agustus 2027
+🕘 Akad: 08.00 WIB | Resepsi: 09.00 WIB
+📍 Kediaman Mempelai Wanita, Desa Karangtengah, Kec. Karangsembung, Kab. Cirebon
+
+Berikut link undangan lengkapnya:
+${fullLink}
+
+Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
+
+Wassalamu'alaikum Warahmatullahi Wabarakatuh
+Kami yang berbahagia,
+*Riani & Rafly*`;
+
+      waMessageInput.value = msg;
+
+      let phone = (guestPhoneInput.value || '').replace(/[^0-9]/g, '');
+      if (phone.startsWith('0')) {
+        phone = '62' + phone.slice(1);
+      }
+      const encodedMsg = encodeURIComponent(msg);
+      btnSendWa.href = phone
+        ? `https://wa.me/${phone}?text=${encodedMsg}`
+        : `https://wa.me/?text=${encodedMsg}`;
+    }
+
+    baseUrlInput.addEventListener('input', updatePreview);
+    guestNameInput.addEventListener('input', updatePreview);
+    guestPhoneInput.addEventListener('input', updatePreview);
+    waMessageInput.addEventListener('input', () => {
+      let phone = (guestPhoneInput.value || '').replace(/[^0-9]/g, '');
+      if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+      const encodedMsg = encodeURIComponent(waMessageInput.value);
+      btnSendWa.href = phone
+        ? `https://wa.me/${phone}?text=${encodedMsg}`
+        : `https://wa.me/?text=${encodedMsg}`;
+    });
+
+    btnCopyLink.addEventListener('click', () => {
+      navigator.clipboard.writeText(generatedLinkInput.value);
+      statusMsg.textContent = '✨ Link berhasil disalin!';
+      setTimeout(() => (statusMsg.textContent = ''), 2500);
+    });
+
+    btnCopyMsg.addEventListener('click', () => {
+      navigator.clipboard.writeText(waMessageInput.value);
+      statusMsg.textContent = '💌 Teks pengantar + link berhasil disalin!';
+      setTimeout(() => (statusMsg.textContent = ''), 2500);
+    });
+
+    updatePreview();
+  </script>
+</body>
+</html>
